@@ -19,6 +19,8 @@ Explicação do conceito de semáforo inteligente e as vantagens da adaptação 
 
 ## 2. Especificações Técnicas e Componentes
 
+&nbsp;&nbsp;&nbsp;&nbsp;Para o desenvolvimento do semáforo inteligente, utilizamos os seguintes materiais:
+
 - 2 ESP32
 - 2 Leds vermelhos
 - 2 Leds Amarelos
@@ -28,23 +30,25 @@ Explicação do conceito de semáforo inteligente e as vantagens da adaptação 
 - Jumpers
 - 8 Resistores
 
-## 3. Configuração e Programação do Semáforo com LDR
+## 3. Configuração e Programação do Semáforo com sensores
 
-um farol não estará verde enquanto o outro estiver simultaneamente
+&nbsp;&nbsp;&nbsp;&nbsp;A seguir, estão as condições que ocorre no nosso sistema inteligente:
 
-dois sensores LDR que todos os outros componentes irão ditar se os semafóros estarão ligados ou não inclusive eles entre si
+1. Um farol não estará verde enquanto o outro estiver simultaneamente
 
-O sensor LDR que tá perto do sensor ultrasonico irá identificar se está de dia ou de noite, se ele identificar que está de noite, todos os farois ficarão amarelo piscando
+2. Dois sensores LDR que todos os outros componentes irão ditar se os semafóros estarão ligados ou não inclusive eles entre si
 
-o segundo LDR está na rua mais estreita, ele serve para identificar se há algum carro parado naquela rua. Se o carro estiver em cima dele irá baixar a luminosidade. Se ele identificar que tem um carro em cima, ele vai fechar o semáforo da avenida e abrir o da rua estreita
+3. O sensor LDR que tá perto do sensor ultrasonico irá identificar se está de dia ou de noite, se ele identificar que está de noite, todos os farois ficarão amarelo piscando
 
-o semáforo da avenida só irá abrir quando o segundo LDR identificar que não há carro na rua estreita
+4. O segundo LDR está na rua mais estreita, ele serve para identificar se há algum carro parado naquela rua. Se o carro estiver em cima dele irá baixar a luminosidade. Se ele identificar que tem um carro em cima, ele vai fechar o semáforo da avenida e abrir o da rua estreita
 
-assim que o semáforo da rua estreita ficar vermelho, o da avenida irá abrir.
+5. O semáforo da avenida só irá abrir quando o segundo LDR identificar que não há carro na rua estreita
 
-se o semáforo da rua estiver fechado automaticamente o da avenida abre, com ressalva se o sensor ultrasonico identificar que tem um usuário na faixa de pedestre de 4,5cm, o da avenida fecha e o da rua abre
+6. Assim que o semáforo da rua estreita ficar vermelho, o da avenida irá abrir.
 
-o ultrasonico vai identificar se tem alguém na faixa de pedestre da avenida
+7. Se o semáforo da rua estiver fechado automaticamente o da avenida abre, com ressalva se o sensor ultrasonico identificar que tem um usuário na faixa de pedestre de 4,5cm, o da avenida fecha e o da rua abre
+
+8. O ultrasonico vai identificar se tem alguém na faixa de pedestre da avenida
 
 
 
