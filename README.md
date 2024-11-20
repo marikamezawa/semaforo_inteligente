@@ -13,72 +13,165 @@
 
 &nbsp;&nbsp;&nbsp;&nbsp;Neste projeto, será desenvolvido um semáforo inteligente capaz de detectar veículos por meio de um sensor de luminosidade (LDR) e ajustar seu funcionamento automaticamente em resposta às condições ambientais, como o modo noturno. Este sistema irá buscar simular um ambiente urbano no qual dois semáforos interconectados podem comunicar-se para otimizar o fluxo de tráfego. Dividido em duas etapas principais, o projeto abrange a montagem física e programação do semáforo com o LDR, seguida pela criação de uma interface online de controle. Um desafio extra inclui a implementação de dois ESP32 para conectar cada semáforo a uma central Ubidots, melhorando o gerenciamento e monitoramento dos dados em uma rede interconectada.
 
-## 1. Objetivos e Visão Geral do Projeto
+## 1. Especificações Técnicas e Componentes
 
-Explicação do conceito de semáforo inteligente e as vantagens da adaptação ao modo noturno.
+Os materiais utilizados no desenvolvimento do projeto foram:
 
-## 2. Especificações Técnicas e Componentes
-
-&nbsp;&nbsp;&nbsp;&nbsp;Para o desenvolvimento do semáforo inteligente, utilizamos os seguintes materiais:
+**Microcontroladores:**
 
 - 2 ESP32
-- 2 Leds vermelhos
-- 2 Leds Amarelos
-- 2 Leds verdes
-- 2 Sensor de luminosidade LDL
-- 1 Sensor Ultrasônico HCSR04
+
+**Atuadores:**
+
+- 2 LEDs vermelhos
+- 2 LEDs amarelos
+- 2 LEDs verdes
+
+**Sensores:**
+
+- 2 Sensores de luminosidade (LDR)
+- 1 Sensor ultrassônico (HCSR04)
+
+**Conexões e Resistores:**
+
 - Jumpers
 - 8 Resistores
 
-## 3. Configuração e Programação do Semáforo com sensores
+## 2. Configuração e Programação do Semáforo com Sensores
 
-&nbsp;&nbsp;&nbsp;&nbsp;A seguir, estão as condições que ocorre no nosso sistema inteligente:
+&nbsp;&nbsp;&nbsp;&nbsp;O sistema é controlado por uma lógica programada para gerenciar as condições de operação. As principais condições implementadas são:
 
-1. Um farol não estará verde enquanto o outro estiver simultaneamente
+1. Intertravamento entre semáforos:
 
-2. Dois sensores LDR que todos os outros componentes irão ditar se os semafóros estarão ligados ou não inclusive eles entre si
+- Um semáforo nunca estará verde ao mesmo tempo que o outro.
 
-3. O sensor LDR que tá perto do sensor ultrasonico irá identificar se está de dia ou de noite, se ele identificar que está de noite, todos os farois ficarão amarelo piscando
+2. Operação baseada em luz ambiente (LDR):
 
-4. O segundo LDR está na rua mais estreita, ele serve para identificar se há algum carro parado naquela rua. Se o carro estiver em cima dele irá baixar a luminosidade. Se ele identificar que tem um carro em cima, ele vai fechar o semáforo da avenida e abrir o da rua estreita
+- Um LDR determina se é dia ou noite. Se estiver escuro, ambos os semáforos entram no modo noturno, piscando amarelo intermitentemente.
+Prioridade para ruas estreitas:
 
-5. O semáforo da avenida só irá abrir quando o segundo LDR identificar que não há carro na rua estreita
+- O segundo LDR, posicionado na rua estreita, detecta veículos parados.
+- Caso detecte um veículo, o semáforo da avenida será fechado e o da rua estreita será aberto.
 
-6. Assim que o semáforo da rua estreita ficar vermelho, o da avenida irá abrir.
+3. Abertura da avenida:
 
-7. Se o semáforo da rua estiver fechado automaticamente o da avenida abre, com ressalva se o sensor ultrasonico identificar que tem um usuário na faixa de pedestre de 4,5cm, o da avenida fecha e o da rua abre
+- O semáforo da avenida só abre quando o LDR na rua estreita não detecta mais veículos.
 
-8. O ultrasonico vai identificar se tem alguém na faixa de pedestre da avenida
+4. Controle de pedestres:
 
+- O sensor ultrassônico detecta pedestres na faixa da avenida (distância < 4,5 cm).
+- Quando isso ocorre, o semáforo da avenida é fechado e o da rua estreita é aberto.
 
+## 3. Código do Projeto
 
-Detalhes da integração do sensor de luminosidade com o código do semáforo.
-Explicação sobre como o sensor detecta a presença de veículos simulados.
-Descrição do modo noturno e as condições para sua ativação.
+```cpp
+#include "UbidotsEsp32Mqtt.h"
 
-## 4. Testes e Ajustes do Sistema Físico
+#define TRIG_PIN              19
+#define ECHO_PIN              18
+#define LDR_RUA_PIN           35
+#define LDR_CALCADA_PIN       32
+#define LED_GREEN_PIN_1       26
+#define LED_YELLOW_PIN_1      25
+#define LED_RED_PIN_1         33
+#define LED_GREEN_PIN_2       23
+#define LED_YELLOW_PIN_2      22
+#define LED_RED_PIN_2         21
 
-Procedimentos para testar a detecção de luz e o comportamento em modo noturno.
+const char *UBIDOTS_TOKEN = "BBUS-0KKB8VTHx1jUYwZ3rUZJ659aEkq4bq";
+const char *WIFI_SSID = "Inteli.Iot";
+const char *WIFI_PASS = "@Intelix10T#";
+const char *DEVICE_LABEL = "esp32_t11_g01";
+const char *VARIABLE_LABEL_RED_1 = "luz_vermelha_1";
+const char *VARIABLE_LABEL_YELLOW_1 = "luz_amarela_1";
+const char *VARIABLE_LABEL_GREEN_1 = "luz_verde_1";
+const char *VARIABLE_LABEL_LDR_RUA = "ldr_rua";
+const char *VARIABLE_LABEL_LDR_CALCADA = "ldr_calcada";
+const char *VARIABLE_LABEL_DISTANCE = "distance";
+const int PUBLISH_FREQUENCY = 5000;
 
-Soluções de ajustes e calibragem para o sensor LDR em diferentes ambientes.
+float duration_us, distance_cm;
+int luz_calcada, luz_rua;
+long int timer;
 
-## 5. Desenvolvimento da Interface Online
+unsigned long greenStartTime = 0;
+unsigned long yellowStartTime = 0;
+bool isGreen = false;
+bool isYellow = false;
 
-Requisitos e funcionalidades principais da interface.
-Passo a passo para criar uma interface simples e intuitiva para controlar o semáforo.
+Ubidots ubidots(UBIDOTS_TOKEN);
 
-## 6. Funções de Controle e Monitoramento
+void callback(char *topic, byte *payload, unsigned int length) {
+  Serial.print("Message arrived [");
+  Serial.print(topic);
+  Serial.print("] ");
+ 
+  String message = "";
+  for (int i = 0; i < length; i++) {
+    message += (char)payload[i];
+  }
+ 
+  Serial.println(message);
+}
 
-Explicação sobre os controles do modo noturno e ajustes de semáforo via interface.
-Visualização dos dados do LDR em tempo real.
+void setup() {
+  Serial.begin(115200);
+  ubidots.setDebug(true);
+  ubidots.connectToWifi(WIFI_SSID, WIFI_PASS);
+  ubidots.setCallback(callback);
+  ubidots.setup();
+  ubidots.reconnect();
+  pinMode(LED_GREEN_PIN_1, OUTPUT);
+  pinMode(LED_YELLOW_PIN_1, OUTPUT);
+  pinMode(LED_RED_PIN_1, OUTPUT);
+  pinMode(LED_GREEN_PIN_2, OUTPUT);
+  pinMode(LED_YELLOW_PIN_2, OUTPUT);
+  pinMode(LED_RED_PIN_2, OUTPUT);
 
-## Extra: Conexão com ESP32 e Integração com Ubidots
+  timer = millis();
 
-Procedimentos para configurar cada ESP32 e conectar os semáforos à central Ubidots.
-Configuração do dashboard Ubidots para monitorar e gerenciar os semáforos.
-Benefícios da interconexão para o controle do tráfego.
+  pinMode(TRIG_PIN, OUTPUT);
+  pinMode(ECHO_PIN, INPUT);
+  pinMode(LDR_CALCADA_PIN, INPUT);
+  pinMode(LDR_RUA_PIN, INPUT);
+}
 
-## Implementação e Testes Finais
+void loop() {  
+  readDistance();
+  readLight();
+  delay(100);
 
-Testes de funcionalidade da interface e sincronização entre semáforos conectados.
-Depuração e ajustes de comunicação entre ESP32 e Ubidots.
+  if (!ubidots.connected()) {
+    ubidots.reconnect();
+  }
+
+  controlTrafficLight();
+
+  if (millis() - timer >= PUBLISH_FREQUENCY) {
+    publishData();
+    timer = millis();
+  }
+
+  ubidots.loop();
+}
+
+```
+ 
+## 4. Código-Fonte e Lógica de Funcionamento
+
+&nbsp;&nbsp;&nbsp;&nbsp;O código desenvolvido segue uma lógica de operação clara, com funções dedicadas para:
+
+1. Leitura de sensores (luminosidade e distância).
+2. Controle dos semáforos com base nas condições configuradas.
+3. Comunicação com a plataforma Ubidots para envio de dados.
+
+- Destaques do código:
+
+1. Modo noturno:
+- Função ```setTrafficLightYellowBlinking``` para operação intermitente.
+
+2. Prioridade de tráfego:
+- Condições implementadas na função ```controlTrafficLight```, priorizando ruas estreitas ou pedestres conforme necessário.
+
+3. Publicação no Ubidots:
+- Função ```publishData``` que organiza e envia os dados coletados para a central de controle.
