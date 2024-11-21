@@ -11,11 +11,13 @@
 - Kaio Vitor
 - Mariella Kamezawa
 
+## 1. Objetivo
+
 &nbsp;&nbsp;&nbsp;&nbsp;Neste projeto, será desenvolvido um semáforo inteligente capaz de detectar veículos por meio de um sensor de luminosidade (LDR) e ajustar seu funcionamento automaticamente em resposta às condições ambientais, como o modo noturno. Este sistema irá buscar simular um ambiente urbano no qual dois semáforos interconectados podem comunicar-se para otimizar o fluxo de tráfego. Dividido em duas etapas principais, o projeto abrange a montagem física e programação do semáforo com o LDR, seguida pela criação de uma interface online de controle. Um desafio extra inclui a implementação de dois ESP32 para conectar cada semáforo a uma central Ubidots, melhorando o gerenciamento e monitoramento dos dados em uma rede interconectada.
 
-## 1. Especificações Técnicas e Componentes
+## 2. Especificações Técnicas e Componentes
 
-Os materiais utilizados no desenvolvimento do projeto foram:
+Para o desenvolvimento do projeto, foram utilizados os seguintes materiais:
 
 **Microcontroladores:**
 
@@ -37,15 +39,15 @@ Os materiais utilizados no desenvolvimento do projeto foram:
 - Jumpers
 - 8 Resistores
 
-## 2. Configuração e Programação do Semáforo com Sensores
+## 3. Configuração e Programação do Semáforo com Sensores
 
 &nbsp;&nbsp;&nbsp;&nbsp;O sistema é controlado por uma lógica programada para gerenciar as condições de operação. As principais condições implementadas são:
 
-1. Intertravamento entre semáforos:
+**1. Intertravamento entre semáforos:**
 
 - Um semáforo nunca estará verde ao mesmo tempo que o outro.
 
-2. Operação baseada em luz ambiente (LDR):
+**2. Operação baseada em luz ambiente (LDR):**
 
 - Um LDR determina se é dia ou noite. Se estiver escuro, ambos os semáforos entram no modo noturno, piscando amarelo intermitentemente.
 Prioridade para ruas estreitas:
@@ -53,16 +55,16 @@ Prioridade para ruas estreitas:
 - O segundo LDR, posicionado na rua estreita, detecta veículos parados.
 - Caso detecte um veículo, o semáforo da avenida será fechado e o da rua estreita será aberto.
 
-3. Abertura da avenida:
+**3. Abertura da avenida:**
 
 - O semáforo da avenida só abre quando o LDR na rua estreita não detecta mais veículos.
 
-4. Controle de pedestres:
+**4. Controle de pedestres:**
 
 - O sensor ultrassônico detecta pedestres na faixa da avenida (distância < 4,5 cm).
 - Quando isso ocorre, o semáforo da avenida é fechado e o da rua estreita é aberto.
 
-## 3. Código do Projeto
+## 4. Código do Projeto
 
 ```cpp
 #include "UbidotsEsp32Mqtt.h"
@@ -157,7 +159,7 @@ void loop() {
 
 ```
  
-## 4. Código-Fonte e Lógica de Funcionamento
+## 5. Código-Fonte e Lógica de Funcionamento
 
 &nbsp;&nbsp;&nbsp;&nbsp;O código desenvolvido segue uma lógica de operação clara, com funções dedicadas para:
 
@@ -175,3 +177,23 @@ void loop() {
 
 3. Publicação no Ubidots:
 - Função ```publishData``` que organiza e envia os dados coletados para a central de controle.
+
+## 6. Vídeo do semáforo em funcionamento
+
+&nbsp;&nbsp;&nbsp;&nbsp;O vídeo a seguir demonstra o funcionamento do semáforo inteligente, ilustrando as principais funcionalidades do sistema:
+
+**1. Sinal verde para a avenida e vermelho para a rua:** No início, o semáforo da avenida está com o sinal verde, enquanto o da rua está com o sinal vermelho, priorizando o tráfego da via principal.
+
+**2. Demonstração de detecção de veículo:** Ao colocar o dedo no sensor LDR, simulando a presença de um veículo na rua, o sistema inverte os sinais: o semáforo da avenida vai para o vermelho e o da rua para o verde, permitindo o fluxo na rua menor.
+
+**3. Modo noturno:** O vídeo então demonstra o modo noturno. Ao colocar o dedo no segundo LDR, simulando a detecção de baixa luminosidade (noite), o sistema ativa o sinal amarelo piscante em ambos os semáforos, alertando os motoristas para maior atenção.
+
+**4. Integração com a plataforma Ubidots:** Por fim, o vídeo exibe a interface da plataforma Ubidots, onde os dados dos sensores estão sendo enviados e monitorados em tempo real.
+
+Caso o vídeo não rode, você pode acessar clicando [aqui](https://drive.google.com/file/d/1fUYqFsOQIWyczJHH6Nx0I-bn7eCLLSmF/view?usp=sharing) e em seguide baixe o vídeo para ser possível assistir.
+
+## 7. Conclusão
+
+&nbsp;&nbsp;&nbsp;&nbsp;Em conclusão, O sistema desenvolvido utilizou uma estratégia que prioriza o tráfego na avenida principal, mantendo o sinal verde ativo por padrão. Essa configuração só é alterada quando os sensores detectam a presença de veículos na rua menor, garantindo fluidez no trânsito sem comprometer a eficiência das vias secundárias.
+
+&nbsp;&nbsp;&nbsp;&nbsp;Além disso, o modo noturno foi projetado para aumentar a segurança ao configurar ambos os semáforos no padrão de luz amarela piscante, alertando os motoristas em horários de baixa visibilidade. Essa abordagem simples e eficaz equilibra mobilidade e segurança, destacando a viabilidade do sistema em cenários urbanos.
