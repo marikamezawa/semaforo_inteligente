@@ -190,6 +190,10 @@ void loop() {
 
 **4. Integração com a plataforma Ubidots:** Por fim, o vídeo exibe a interface da plataforma Ubidots, onde os dados dos sensores estão sendo enviados e monitorados em tempo real.
 
+
+https://github.com/user-attachments/assets/512854a5-14a3-4e67-a08a-d513ebea79b2
+
+
 Caso o vídeo não rode, você pode acessar clicando [aqui](https://drive.google.com/file/d/1fUYqFsOQIWyczJHH6Nx0I-bn7eCLLSmF/view?usp=sharing) e em seguide baixe o vídeo para ser possível assistir.
 
 ## 7. Conclusão
