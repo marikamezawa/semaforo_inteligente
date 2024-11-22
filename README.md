@@ -21,7 +21,7 @@ Para o desenvolvimento do projeto, foram utilizados os seguintes materiais:
 
 **Microcontroladores:**
 
-- 2 ESP32
+- 1 ESP32
 
 **Atuadores:**
 
@@ -32,7 +32,6 @@ Para o desenvolvimento do projeto, foram utilizados os seguintes materiais:
 **Sensores:**
 
 - 2 Sensores de luminosidade (LDR)
-- 1 Sensor ultrassônico (HCSR04)
 
 **Conexões e Resistores:**
 
@@ -59,12 +58,67 @@ Prioridade para ruas estreitas:
 
 - O semáforo da avenida só abre quando o LDR na rua estreita não detecta mais veículos.
 
-**4. Controle de pedestres:**
+## 4. Representação da Configuração do Semáforo com Sensores
 
-- O sensor ultrassônico detecta pedestres na faixa da avenida (distância < 4,5 cm).
-- Quando isso ocorre, o semáforo da avenida é fechado e o da rua estreita é aberto.
+&nbsp;&nbsp;&nbsp;&nbsp;Nesta seção, ficará demonstrado através de imagens, o sistema do semáforo inteligente.
 
-## 4. Código do Projeto
+&nbsp;&nbsp;&nbsp;&nbsp;O sensor LDR, identifica se há veículo no semáforo secundário (rua), através da baixa luminosidade (sombra) que o transporte faz ao passar por cima do sensor.
+
+<div align="center">
+  <p><strong>Figura 1:</strong> Sistema de detecção de veículo </p>
+  <img src="assets\Situação1.png" widht = 80% />
+  <p><em>Créditos: material produzido pelo autor (2024)</em></p>
+</div>
+
+&nbsp;&nbsp;&nbsp;&nbsp;Quando um véiculo é detectado, o semáforo principal (avenida) é fechado, e o semáforo secundário (rua) é aberto para que os veículos passem.
+
+<div align="center">
+  <p><strong>Figura 2:</strong> Abertura do sinal da avenida </p>
+  <img src="assets\Situação2.png" widht = 80% />
+  <p><em>Créditos: material produzido pelo autor (2024)</em></p>
+</div>
+
+&nbsp;&nbsp;&nbsp;&nbsp; Quando não há mais nenhum veículo detectado pelo sensor LDR, o semáforo da avenida volta a ficar verde.
+
+<div align="center">
+  <p><strong>Figura 3:</strong> Fechamento do sinal da avenida </p>
+  <img src="assets\Situação3.png" widht = 80% />
+  <p><em>Créditos: material produzido pelo autor (2024)</em></p>
+</div>
+
+&nbsp;&nbsp;&nbsp;&nbsp;Quando há um veículo detectado, o semáforo da rua avre para o veículo passar.
+
+<div align="center">
+  <p><strong>Figura 4:</strong> Abertura do sinal da rua </p>
+  <img src="assets\Situação4.png" widht = 80% />
+  <p><em>Créditos: material produzido pelo autor (2024)</em></p>
+</div>
+
+&nbsp;&nbsp;&nbsp;&nbsp;Nessa imagem está o funcionamento geral do semáforo da rua, no qual quando haver um veículo, o sinal abre, e quando não haver um veículo, o sinal fecha.
+
+<div align="center">
+  <p><strong>Figura 5:</strong> Sistema de sinal da rua </p>
+  <img src="assets\Situação5.png" widht = 80% />
+  <p><em>Créditos: material produzido pelo autor (2024)</em></p>
+</div>
+
+&nbsp;&nbsp;&nbsp;&nbsp;Para o modo noturno, há um outro sensor LDR, que ao identificar que está noite, pela baixa luminosidade, o modo noturno é ativado.
+
+<div align="center">
+  <p><strong>Figura 6:</strong> Modo noturno </p>
+  <img src="assets\Situação6.png" widht = 80% />
+  <p><em>Créditos: material produzido pelo autor (2024)</em></p>
+</div>
+
+&nbsp;&nbsp;&nbsp;&nbsp;No modo noturno, o sinal amarelo fica piscando, com o objetivo de alertar o motorista em horários de baixa visibilidade, e assim aumentando a segurança.
+
+<div align="center">
+  <p><strong>Figura 7:</strong> Modo norturno </p>
+  <img src="assets\Situação7.png" widht = 80% />
+  <p><em>Créditos: material produzido pelo autor (2024)</em></p>
+</div>
+
+## 5. Código do Projeto
 
 ```cpp
 #include "UbidotsEsp32Mqtt.h"
@@ -159,7 +213,7 @@ void loop() {
 
 ```
  
-## 5. Código-Fonte e Lógica de Funcionamento
+## 6. Código-Fonte e Lógica de Funcionamento
 
 &nbsp;&nbsp;&nbsp;&nbsp;O código desenvolvido segue uma lógica de operação clara, com funções dedicadas para:
 
@@ -178,7 +232,7 @@ void loop() {
 3. Publicação no Ubidots:
 - Função ```publishData``` que organiza e envia os dados coletados para a central de controle.
 
-## 6. Vídeo do semáforo em funcionamento
+## 7. Vídeo do semáforo em funcionamento
 
 &nbsp;&nbsp;&nbsp;&nbsp;O vídeo a seguir demonstra o funcionamento do semáforo inteligente, ilustrando as principais funcionalidades do sistema:
 
@@ -192,8 +246,9 @@ void loop() {
 
 Caso o vídeo não rode, você pode acessar clicando [aqui](https://drive.google.com/file/d/1fUYqFsOQIWyczJHH6Nx0I-bn7eCLLSmF/view?usp=sharing) e em seguide baixe o vídeo para ser possível assistir.
 
-## 7. Conclusão
+## 8. Conclusão
 
 &nbsp;&nbsp;&nbsp;&nbsp;Em conclusão, O sistema desenvolvido utilizou uma estratégia que prioriza o tráfego na avenida principal, mantendo o sinal verde ativo por padrão. Essa configuração só é alterada quando os sensores detectam a presença de veículos na rua menor, garantindo fluidez no trânsito sem comprometer a eficiência das vias secundárias.
 
 &nbsp;&nbsp;&nbsp;&nbsp;Além disso, o modo noturno foi projetado para aumentar a segurança ao configurar ambos os semáforos no padrão de luz amarela piscante, alertando os motoristas em horários de baixa visibilidade. Essa abordagem simples e eficaz equilibra mobilidade e segurança, destacando a viabilidade do sistema em cenários urbanos.
+
